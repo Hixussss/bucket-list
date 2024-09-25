@@ -41,7 +41,6 @@ class AuthController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Encode the plain password
             $user->setPassword(
                 $passwordHasher->hashPassword(
                     $user,
@@ -52,7 +51,6 @@ class AuthController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Redirect to the login page or any other page
             return $this->redirectToRoute('app_login');
         }
 

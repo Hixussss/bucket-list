@@ -18,7 +18,8 @@
             </div>
             <div class="mb-4">
                 {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-gray-700'}}) }}
-                {{ form_widget(form.description, {'attr': {'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700', 'id': 'description-input'}}) }}
+                <button type="button" id="generate-description" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg mt-2">Générer la description</button>
             </div>
             <div class="mb-4 flex items-center">
                 {{ form_widget(form.completed, {'attr': {'class': 'mr-2'}}) }}
@@ -52,6 +53,28 @@
                     .catch(error => {
                         console.error('Error during reverse geocoding:', error);
                     });
+            });
+
+            document.getElementById('generate-description').addEventListener('click', function() {
+                var title = document.getElementById('title-input').value;
+                if (title) {
+                    fetch('/generate-description', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ title: title })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('description-input').value = data.description;
+                    })
+                    .catch(error => {
+                        console.error('Error generating description:', error);
+                    });
+                } else {
+                    alert('Veuillez remplir le titre avant de générer la description.');
+                }
             });
         });
     </script>
