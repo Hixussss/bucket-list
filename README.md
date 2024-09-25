@@ -74,8 +74,7 @@ Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
 
 ## Auteurs
 
-- **Votre Nom** - *Développeur principal* - [Votre Profil GitHub](https://github.com/votre-profil)
-- **Contributeurs** - Voir la liste des [contributeurs](https://github.com/Hixussss/bucket-list/contributors) qui ont participé à ce projet.
+- **Hixus** - *Développeur principal* - [GitHub](https://github.com/Hixussss)
 
 ---
 
