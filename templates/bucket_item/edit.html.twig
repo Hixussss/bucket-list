@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ bucket_item.title }}{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto p-4">
+        <a href="{{ path('bucket_index') }}" class="text-gray-500 hover:text-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <h1 class="text-2xl font-bold my-4 text-center">Edit {{ bucket_item.title }}</h1>
+        {{ form_start(form) }}
+            <div class="mb-4">
+                {{ form_label(form.title, 'Title', {'label_attr': {'class': 'block text-gray-700'}}) }}
+                {{ form_widget(form.title, {'attr': {'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700'}}) }}
+            </div>
+            <div class="mb-4">
+                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-gray-700'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700'}}) }}
+            </div>
+            <div class="mb-4 flex items-center">
+                {{ form_widget(form.completed, {'attr': {'class': 'mr-2'}}) }}
+                {{ form_label(form.completed, 'Completed', {'label_attr': {'class': 'text-gray-700'}}) }}
+            </div>
+            <div class="flex justify-center space-x-4">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">💾</button>
+                <a href="{{ path('bucket_index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg shadow-lg">🔙</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
