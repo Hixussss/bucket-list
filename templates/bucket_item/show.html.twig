@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ bucket_item.title }}{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto p-4">
+        <div class="flex justify-between items-center mb-4">
+            <a href="{{ path('bucket_index') }}" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-4xl font-bold text-center w-full">{{ bucket_item.title }}</h1>
+        </div>
+        <div class="flex justify-between mb-4">
+            {% if bucket_item.image %}
+                <div class="w-1/2 p-4">
+                    <img src="{{ bucket_item.image }}" alt="{{ bucket_item.title }}" class="w-64 h-64 object-cover rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                </div>
+            {% endif %}
+            <div id="map" class="w-1/2 h-64 rounded-lg shadow-lg transition-transform transform hover:scale-105"></div>
+        </div>
+        <div class="flex justify-between mb-4">
+            <div class="w-1/2 p-4 border rounded-lg shadow-lg">
+                <p class="text-lg font-bold">Description:</p>
+                <p class="text-lg">{{ bucket_item.description }}</p>
+                <p class="text-lg font-bold">Date:</p>
+                <p class="text-lg">{{ bucket_item.date }}</p>
+            </div>
+            <div class="w-1/2 p-4 border rounded-lg shadow-lg">
+                <p class="text-lg font-bold">Lieu:</p>
+                <p class="text-lg">{{ bucket_item.location }}</p>
+                <p class="text-lg font-bold">Random Field 1:</p>
+                <p class="text-lg">{{ bucket_item.random_field_1 }}</p>
+            </div>
+        </div>
+        <div class="flex justify-center space-x-4">
+            <a href="{{ path('bucket_edit', {'id': bucket_item.id}) }}" class="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">✏️</a>
+            <form method="post" action="{{ path('bucket_delete', {'id': bucket_item.id}) }}" style="display:inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ bucket_item.id) }}">
+                <button type="submit" class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">🗑️</button>
+            </form>
+            <form method="post" action="{{ path('bucket_complete', {'id': bucket_item.id}) }}" style="display:inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ bucket_item.id) }}">
+                <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">✅</button>
+            </form>
+            <button class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">🖼️</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var map = L.map('map').setView([46.603354, 1.888334], 6); // Centered on France
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Animation for the map
+            map.on('zoomend', function() {
+                map.flyTo([46.603354, 1.888334], 6, {
+                    animate: true,
+                    duration: 2 // seconds
+                });
+            });
+
+            // Animation for the image
+            const image = document.querySelector('img');
+            image.addEventListener('mouseover', () => {
+                image.classList.add('animate-pulse');
+            });
+            image.addEventListener('mouseout', () => {
+                image.classList.remove('animate-pulse');
+            });
+        });
+    </script>
+{% endblock %}

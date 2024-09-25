@@ -1,0 +1,16 @@
+<header class="bg-gray-800 text-gray-200 py-4">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+        <div class="text-lg font-bold mb-4 md:mb-0">
+            <a href="/bucket" class="text-gray-200 hover:text-white">Bucket-list</a>
+        </div>
+        <div class="flex flex-col md:flex-row">
+            <a href="https://novita.ai/" target="_blank" class="mb-2 md:mb-0 md:mr-4 text-gray-200 hover:text-white transition duration-300">API Génération d'images</a>
+            {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="text-gray-200 hover:text-white transition duration-300">Déconnexion</a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="mb-2 md:mb-0 md:mr-4 text-gray-200 hover:text-white transition duration-300">Connexion</a>
+                <a href="{{ path('app_register') }}" class="text-gray-200 hover:text-white transition duration-300">Inscription</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
