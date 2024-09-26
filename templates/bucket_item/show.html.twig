@@ -22,56 +22,79 @@
         </div>
         <div class="flex justify-between mb-4">
             <div class="w-1/2 p-4 border rounded-lg shadow-lg">
-                <p class="text-lg font-bold">Description:</p>
-                <p class="text-lg">{{ bucket_item.description }}</p>
-                <p class="text-lg font-bold">Date:</p>
-                <p class="text-lg">{{ bucket_item.date }}</p>
+                <div class="mb-4">
+                    <p class="text-lg font-bold">Description:</p>
+                    <p class="text-lg">{{ bucket_item.description }}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold">Date:</p>
+                    <p class="text-lg">{{ bucket_item.date }}</p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold">Propriétaire:</p>
+                    <p class="text-lg">{{ bucket_item.user.username }}</p>
+                </div>
             </div>
             <div class="w-1/2 p-4 border rounded-lg shadow-lg">
-                <p class="text-lg font-bold">Lieu:</p>
-                <p class="text-lg">{{ bucket_item.location }}</p>
-                <p class="text-lg font-bold">Random Field 1:</p>
-                <p class="text-lg">{{ bucket_item.random_field_1 }}</p>
+                <div class="mb-4">
+                    <p class="text-lg font-bold">Lieu:</p>
+                    <p class="text-lg">{{ bucket_item.location }}</p>
+                </div>
             </div>
         </div>
         <div class="flex justify-center space-x-4">
-            <a href="{{ path('bucket_edit', {'id': bucket_item.id}) }}" class="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">✏️</a>
-            <form method="post" action="{{ path('bucket_delete', {'id': bucket_item.id}) }}" style="display:inline;">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ bucket_item.id) }}">
-                <button type="submit" class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">🗑️</button>
-            </form>
-            <form method="post" action="{{ path('bucket_complete', {'id': bucket_item.id}) }}" style="display:inline;">
-                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ bucket_item.id) }}">
-                <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">✅</button>
-            </form>
-            <button class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">🖼️</button>
+            {% if app.user and app.user.username == bucket_item.user.username %}
+                <a href="{{ path('bucket_edit', {'id': bucket_item.id}) }}" class="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">✏️</a>
+                <form method="post" action="{{ path('bucket_delete', {'id': bucket_item.id}) }}" style="display:inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ bucket_item.id) }}">
+                    <button type="submit" class="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">🗑️</button>
+                </form>
+                <form method="post" action="{{ path('bucket_complete', {'id': bucket_item.id}) }}" style="display:inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ bucket_item.id) }}">
+                    <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">✅</button>
+                </form>
+                <button class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg transition-transform transform hover:scale-105">🖼️</button>
+            {% endif %}
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var map = L.map('map').setView([46.603354, 1.888334], 6); // Centered on France
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var coordinates = "{{ bucket_item.location }}";
+        console.log('Coordinates string:', coordinates); // Debugging line
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+        if (coordinates.includes(',')) {
+            var coordsArray = coordinates.split(',');
+            if (coordsArray.length === 2) {
+                var lat = parseFloat(coordsArray[0].trim());
+                var lon = parseFloat(coordsArray[1].trim());
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    var map = L.map('map').setView([lat, lon], 6);
 
-            // Animation for the map
-            map.on('zoomend', function() {
-                map.flyTo([46.603354, 1.888334], 6, {
-                    animate: true,
-                    duration: 2 // seconds
-                });
-            });
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
 
-            // Animation for the image
-            const image = document.querySelector('img');
+                    L.marker([lat, lon]).addTo(map);
+                } else {
+                    console.error('Invalid coordinates:', coordsArray);
+                }
+            } else {
+                console.error('Invalid coordinates format:', coordsArray);
+            }
+        } else {
+            console.error('Coordinates string does not contain a comma:', coordinates);
+        }
+
+        const image = document.querySelector('img');
+        if (image) {
             image.addEventListener('mouseover', () => {
                 image.classList.add('animate-pulse');
             });
             image.addEventListener('mouseout', () => {
                 image.classList.remove('animate-pulse');
             });
-        });
-    </script>
+        }
+    });
+</script>
 {% endblock %}

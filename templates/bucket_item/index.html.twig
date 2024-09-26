@@ -22,54 +22,27 @@
                 <li class="shadow-md rounded p-4 my-2 flex flex-col md:flex-row justify-between items-center {% if item.completed %}bg-green-100{% endif %}" data-id="{{ item.id }}">
                     <div class="mb-2 md:mb-0 text-center md:text-left">
                         <a href="{{ path('bucket_show', {'id': item.id}) }}" class="text-blue-500">{{ item.title }}</a>
+                        <div class="text-sm text-gray-500">by {{ item.user.username }}</div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        {% if not item.completed %}
-                        <div class="bg-white">
-                            <form method="post" action="{{ path('bucket_complete', {'id': item.id}) }}" style="display:inline;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ item.id) }}">
-                                <button type="submit" class="text-green-500 px-2">✔</button>
+                        {% if app.user and app.user.id == item.user.id %}
+                            {% if not item.completed %}
+                            <div class="bg-white">
+                                <form method="post" action="{{ path('bucket_complete', {'id': item.id}) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ item.id) }}">
+                                    <button type="submit" class="text-green-500 px-2">✔</button>
+                                </form>
+                            </div>
+                            {% endif %}
+                            <a href="{{ path('bucket_edit', {'id': item.id}) }}" class="text-yellow-500 px-2">✏️</a>
+                            <form method="post" action="{{ path('bucket_delete', {'id': item.id}) }}" style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
+                                <button type="submit" class="text-red-500 px-2">🗑️</button>
                             </form>
-                        </div>
                         {% endif %}
-                        <a href="{{ path('bucket_edit', {'id': item.id}) }}" class="text-yellow-500 px-2">✏️</a>
-                        <form method="post" action="{{ path('bucket_delete', {'id': item.id}) }}" style="display:inline;">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
-                            <button type="submit" class="text-red-500 px-2">🗑️</button>
-                        </form>
                     </div>
                 </li>
             {% endfor %}
         </ul>
     </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var el = document.getElementById('bucket-list');
-        var sortable = Sortable.create(el, {
-            animation: 150,
-            onEnd: function (evt) {
-                var order = sortable.toArray();
-                var reorderUrl = '{{ path('bucket_reorder_items') }}';
-                fetch(reorderUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token('reorder') }}'
-                    },
-                    body: JSON.stringify({ order: order })
-                }).then(response => {
-                    if (!response.ok) {
-                        console.error('Error:', response.statusText);
-                    }
-                    return response.json();
-                }).then(data => {
-                    console.log('Success:', data);
-                }).catch(error => {
-                    console.error('Fetch error:', error);
-                });
-            }
-        });
-    });
-</script>
 {% endblock %}

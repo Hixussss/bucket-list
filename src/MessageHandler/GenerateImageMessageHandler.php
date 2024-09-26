@@ -3,6 +3,7 @@
 
 namespace App\MessageHandler;
 
+use App\Entity\WorkerTask;
 use App\Message\GenerateImageMessage;
 use App\Repository\BucketItemRepository;
 use App\Service\ImageService;
@@ -30,6 +31,13 @@ class GenerateImageMessageHandler implements MessageHandlerInterface
         $query = $message->getQuery();
         $this->logger->info('Starting image generation for query: ' . $query);
 
+        $workerTask = new WorkerTask();
+        $workerTask->setQuery($query);
+        $workerTask->setStatus('in_progress');
+        $workerTask->setCreatedAt(new \DateTimeImmutable());
+        $this->entityManager->persist($workerTask);
+        $this->entityManager->flush();
+
         try {
             $imageUrl = $this->imageService->processImageGeneration($query);
             $this->logger->info('Image generated successfully', ['imageUrl' => $imageUrl]);
@@ -47,8 +55,16 @@ class GenerateImageMessageHandler implements MessageHandlerInterface
             } else {
                 $this->logger->warning('Bucket item not found', ['title' => $query]);
             }
+
+            $workerTask->setStatus('completed');
+            $this->entityManager->persist($workerTask);
+            $this->entityManager->flush();
         } catch (\Exception $e) {
             $this->logger->error('Error processing image generation', ['exception' => $e->getMessage()]);
+
+            $workerTask->setStatus('failed');
+            $this->entityManager->persist($workerTask);
+            $this->entityManager->flush();
         }
     }
 }

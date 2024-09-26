@@ -16,6 +16,10 @@ class BucketItemType extends AbstractType
         $builder
             ->add('title', TextType::class)
             ->add('description', TextType::class)
+            ->add('location', TextType::class, [
+                'required' => false,
+                'label' => 'Location',
+            ])
             ->add('completed', CheckboxType::class, [
                 'required' => false,
                 'label' => 'Completed',

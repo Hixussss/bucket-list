@@ -21,6 +21,10 @@
                 {{ form_widget(form.description, {'attr': {'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700', 'id': 'description-input'}}) }}
                 <button type="button" id="generate-description" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg mt-2">Générer la description</button>
             </div>
+            <div class="mb-4">
+                {{ form_label(form.location, 'Location', {'label_attr': {'class': 'block text-gray-700'}}) }}
+                {{ form_widget(form.location, {'attr': {'class': 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700', 'id': 'location-input', 'readonly': true}}) }}
+            </div>
             <div class="mb-4 flex items-center">
                 {{ form_widget(form.completed, {'attr': {'class': 'mr-2'}}) }}
                 {{ form_label(form.completed, 'Completed', {'label_attr': {'class': 'text-gray-700'}}) }}
@@ -33,49 +37,50 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var map = L.map('map').setView([20, 0], 2);
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = L.map('map').setView([20, 0], 2);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-            map.on('click', function(e) {
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        var country = data.address.country;
-                        var titleInput = document.getElementById('bucket_item_title');
-                        if (titleInput) {
-                            titleInput.value = titleInput.value.split(' - ')[0] + ' - ' + country;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error during reverse geocoding:', error);
-                    });
-            });
+        map.on('click', function(e) {
+            var locationInput = document.getElementById('bucket_item_location');
+            if (locationInput) {
+                locationInput.value = `${e.latlng.lat},${e.latlng.lng}`;
+            }
+        });
+    });
+        
 
-            document.getElementById('generate-description').addEventListener('click', function() {
-                var title = document.getElementById('title-input').value;
-                if (title) {
-                    fetch('/generate-description', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ title: title })
+        
+
+        document.getElementById('generate-description').addEventListener('click', function() {
+            var title = document.getElementById('bucket_item_title').value;
+            if (title) {
+                fetch('http://localhost:5000/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('description-input').value = data.description;
-                    })
-                    .catch(error => {
-                        console.error('Error generating description:', error);
-                    });
-                } else {
-                    alert('Veuillez remplir le titre avant de générer la description.');
-                }
-            });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.description) {
+                        document.getElementById('bucket_item_description').value = data.description.trim();
+                    } else {
+                        console.error('No description generated:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error generating description:', error);
+                });
+            } else {
+                alert('Veuillez remplir le titre avant de générer la description.');
+            }
         });
     </script>
 {% endblock %}

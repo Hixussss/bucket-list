@@ -51,26 +51,40 @@ class BucketItemController extends AbstractController
         ]);
     }
 
+    #[Route('/bucket/user', name: 'bucket_user_index')]
+    public function userBuckets(BucketItemRepository $bucketItemRepository): Response
+    {
+        $user = $this->getUser();
+        $bucketItems = $bucketItemRepository->findBy(['user' => $user], ['position' => 'ASC']);
+        return $this->render('bucket_item/user_index.html.twig', [
+            'bucket_items' => $bucketItems,
+        ]);
+    }
+
     #[Route('/bucket/new', name: 'bucket_new')]
     public function new(Request $request, ImageService $imageService, EntityManagerInterface $entityManager): Response
     {
         $bucketItem = new BucketItem();
         $form = $this->createForm(BucketItemType::class, $bucketItem);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
             $bucketItem->setCreatedAt(new \DateTimeImmutable());
-
+            $bucketItem->setUser($this->getUser());
+    
             $imageService->getImageUrl($bucketItem->getTitle());
             $bucketItem->setImageStatus('in_progress');
             $bucketItem->setPosition(0);
-
+    
+            // Set the location
+            $bucketItem->setLocation($form->get('location')->getData());
+    
             $entityManager->persist($bucketItem);
             $entityManager->flush();
-
+    
             return $this->redirectToRoute('bucket_index');
         }
-
+    
         return $this->render('bucket_item/new.html.twig', [
             'bucketItem' => $bucketItem,
             'form' => $form->createView(),
